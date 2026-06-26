@@ -1,0 +1,1395 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadow Fight 2 File Editor</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #1a1108;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            color: #d4c5a0;
+        }
+
+        .xml-validator-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(145deg, rgba(42, 26, 10, 0.6), rgba(74, 46, 18, 0.3));
+            border-radius: 24px;
+            border: 1px solid rgba(255, 215, 0, 0.08);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .tools-header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.1);
+        }
+
+            .tools-header h2 {
+                font-size: 28px;
+                font-weight: 700;
+                background: linear-gradient(135deg, #ffd700, #ff8c00);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                margin-bottom: 4px;
+            }
+
+        .upload-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255, 255, 255, 0.05);
+            color: #b8955a;
+        }
+
+        .btn-download-editor {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.12), rgba(255, 140, 0, 0.06));
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+            .btn-download-editor:hover:not(:disabled) {
+                background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 140, 0, 0.1));
+                transform: translateY(-2px);
+                box-shadow: 0 4px 20px rgba(255, 215, 0, 0.1);
+            }
+
+        .btn-reset-editor {
+            background: rgba(255, 69, 0, 0.06);
+            color: #ff6b35;
+            border: 1px solid rgba(255, 69, 0, 0.06);
+        }
+
+            .btn-reset-editor:hover:not(:disabled) {
+                background: rgba(255, 69, 0, 0.12);
+                transform: translateY(-2px);
+            }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .btn-icon {
+            font-size: 18px;
+        }
+
+        .quick-actions-menu {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: linear-gradient(145deg, rgba(42, 26, 10, 0.6), rgba(74, 46, 18, 0.3));
+            border-radius: 14px;
+            border: 1px solid rgba(255, 215, 0, 0.06);
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 10px;
+            background: linear-gradient(145deg, rgba(42, 26, 10, 0.8), rgba(74, 46, 18, 0.6));
+            border: 2px solid rgba(255, 215, 0, 0.06);
+            border-radius: 12px;
+            color: #d4a85a;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 13px;
+            font-weight: 600;
+            min-height: 48px;
+        }
+
+            .menu-item:hover:not(:disabled) {
+                transform: translateY(-2px) scale(1.02);
+                border-color: rgba(255, 215, 0, 0.2);
+                box-shadow: 0 8px 30px rgba(255, 215, 0, 0.1);
+                background: linear-gradient(145deg, rgba(255, 215, 0, 0.12), rgba(74, 46, 18, 0.8));
+                color: #ffd700;
+            }
+
+            .menu-item:disabled {
+                opacity: 0.3;
+                cursor: not-allowed;
+                transform: none !important;
+            }
+
+        .menu-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .menu-title {
+            flex: 1;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .menu-badge {
+            font-size: 12px;
+            opacity: 0.3;
+        }
+
+        .file-info-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 18px;
+            background: linear-gradient(145deg, rgba(42, 26, 10, 0.8), rgba(74, 46, 18, 0.6));
+            border-radius: 14px;
+            border: 1px solid rgba(255, 215, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .file-info-icon {
+            font-size: 24px;
+        }
+
+        .file-info-content {
+            flex: 1;
+        }
+
+        .file-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #d4a85a;
+        }
+
+        .file-details {
+            font-size: 12px;
+            color: #8a6a3a;
+        }
+
+        .file-status-badge {
+            padding: 3px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(76, 175, 80, 0.15);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.1);
+        }
+
+        .result-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border-radius: 14px;
+            margin-bottom: 16px;
+        }
+
+            .result-card.success {
+                background: rgba(76, 175, 80, 0.08);
+                border: 1px solid rgba(76, 175, 80, 0.15);
+            }
+
+            .result-card.error {
+                background: rgba(255, 69, 0, 0.08);
+                border: 1px solid rgba(255, 69, 0, 0.15);
+            }
+
+        .result-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .result-content {
+            flex: 1;
+        }
+
+        .result-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #d4a85a;
+        }
+
+        .result-message {
+            font-size: 13px;
+            color: #b8955a;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 18px;
+            cursor: pointer;
+            opacity: 0.5;
+            padding: 4px;
+        }
+
+            .close:hover {
+                opacity: 1;
+            }
+
+        .error-table-container {
+            background: linear-gradient(145deg, rgba(42, 26, 10, 0.8), rgba(74, 46, 18, 0.6));
+            border-radius: 14px;
+            border: 1px solid rgba(255, 215, 0, 0.06);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.06);
+        }
+
+            .table-header h3 {
+                font-size: 15px;
+                color: #d4a85a;
+                font-weight: 600;
+            }
+
+        .error-count {
+            font-size: 11px;
+            padding: 3px 12px;
+            background: rgba(255, 69, 0, 0.1);
+            border-radius: 20px;
+            color: #ff6b35;
+            border: 1px solid rgba(255, 69, 0, 0.1);
+        }
+
+        .error-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .error-table thead {
+                background: rgba(0, 0, 0, 0.2);
+            }
+
+            .error-table th {
+                padding: 10px 14px;
+                text-align: left;
+                font-size: 11px;
+                font-weight: 700;
+                text-transform: uppercase;
+                color: #8a6a3a;
+                border-bottom: 1px solid rgba(255, 215, 0, 0.06);
+            }
+
+            .error-table td {
+                padding: 10px 14px;
+                font-size: 12px;
+                color: #d4c5a0;
+                border-bottom: 1px solid rgba(255, 215, 0, 0.03);
+            }
+
+        .badge-line {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(255, 215, 0, 0.06);
+            border-radius: 5px;
+            font-weight: 600;
+            color: #d4a85a;
+            font-size: 11px;
+        }
+
+        .badge-col {
+            display: inline-block;
+            padding: 2px 8px;
+            background: rgba(255, 215, 0, 0.04);
+            border-radius: 5px;
+            color: #b8955a;
+            font-size: 11px;
+        }
+
+        .status-badge {
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(255, 69, 0, 0.1);
+            color: #ff6b35;
+            border: 1px solid rgba(255, 69, 0, 0.1);
+        }
+
+        .editor-section {
+            background: linear-gradient(145deg, rgba(42, 26, 10, 0.8), rgba(74, 46, 18, 0.6));
+            border-radius: 14px;
+            border: 1px solid rgba(255, 215, 0, 0.06);
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 18px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.06);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .editor-title-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .editor-title-group h2 {
+                font-size: 15px;
+                font-weight: 600;
+                color: #d4a85a;
+                margin: 0;
+            }
+
+        .editor-tag {
+            font-size: 10px;
+            padding: 3px 10px;
+            background: rgba(255, 215, 0, 0.06);
+            border-radius: 20px;
+            color: #8a6a3a;
+            border: 1px solid rgba(255, 215, 0, 0.06);
+        }
+
+        .editor-wrapper {
+            position: relative;
+            padding: 12px 16px;
+        }
+
+        .editor-container {
+            display: flex;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 215, 0, 0.06);
+            height: 450px;
+            max-height: 450px;
+            min-height: 450px;
+        }
+
+        .editor-gutter {
+            flex-shrink: 0;
+            width: 44px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px 0;
+            overflow: hidden;
+            user-select: none;
+            border-right: 1px solid rgba(255, 215, 0, 0.04);
+            height: 100%;
+        }
+
+        .gutter-line {
+            display: flex;
+            align-items: center;
+            height: 20px;
+            padding: 0 6px;
+            gap: 4px;
+        }
+
+            .gutter-line.gutter-error {
+                background: rgba(255, 69, 0, 0.08);
+                border-left: 3px solid #ff6b35;
+            }
+
+        .line-number {
+            font-size: 11px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            color: #5a4a3a;
+            min-width: 24px;
+            text-align: right;
+        }
+
+        .gutter-line.gutter-error .line-number {
+            color: #ff6b35;
+            font-weight: 600;
+        }
+
+        .line-marker {
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 215, 0, 0.03);
+        }
+
+        .editor-textarea {
+            flex: 1;
+            padding: 8px 14px;
+            background: transparent;
+            border: none;
+            color: #d4c5a0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 12px;
+            line-height: 20px;
+            resize: none;
+            outline: none;
+            height: 100%;
+            min-height: 100%;
+            tab-size: 2;
+            overflow: auto;
+            white-space: pre !important;
+            overflow-x: auto !important;
+            overflow-y: auto !important;
+            word-wrap: normal !important;
+            word-break: normal !important;
+        }
+
+            .editor-textarea:focus {
+                background: rgba(255, 215, 0, 0.02);
+            }
+
+            .editor-textarea::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            .editor-textarea::-webkit-scrollbar-track {
+                background: rgba(0, 0, 0, 0.2);
+                border-radius: 4px;
+            }
+
+            .editor-textarea::-webkit-scrollbar-thumb {
+                background: rgba(255, 215, 0, 0.15);
+                border-radius: 4px;
+            }
+
+        .editor-footer {
+            display: flex;
+            gap: 16px;
+            padding: 8px 14px 0;
+            border-top: 1px solid rgba(255, 215, 0, 0.04);
+            margin-top: 6px;
+        }
+
+        .editor-stats {
+            font-size: 11px;
+            color: #5a4a3a;
+            font-family: monospace;
+        }
+
+        .editor-status-dirty {
+            font-size: 11px;
+            color: #ffd700;
+            font-weight: 600;
+            animation: pulseDirty 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseDirty {
+            0%, 100% {
+                opacity: 0.7;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .quick-actions-menu {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+
+            .editor-container {
+                height: 350px;
+                max-height: 350px;
+                min-height: 350px;
+            }
+
+            .editor-gutter {
+                width: 36px;
+            }
+
+            .editor-textarea {
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .quick-actions-menu {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .editor-container {
+                height: 280px;
+                max-height: 280px;
+                min-height: 280px;
+            }
+
+            .editor-gutter {
+                width: 30px;
+            }
+
+            .line-number {
+                font-size: 9px;
+                min-width: 18px;
+            }
+
+            .editor-textarea {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="xml-validator-container" id="app">
+        <div class="tools-header">
+            <h2>⚔️ Shadow Fight 2 File Editor By ELAINAX</h2>
+        </div>
+
+        <div class="upload-section">
+            <button class="btn btn-download-editor" id="uploadBtn">
+                <span class="btn-icon">📤</span> Upload Save File
+            </button>
+            <input type="file" id="fileInput" accept=".xml" style="display:none">
+            <button class="btn btn-download-editor" id="downloadBtn" disabled><span class="btn-icon">⬇️</span> Download</button>
+            <button class="btn btn-reset-editor" id="resetBtn" disabled><span class="btn-icon">🔄</span> Reset</button>
+        </div>
+
+        <div class="quick-actions-menu" id="actionsMenu">
+            <button class="menu-item" data-action="maxLevel"><span class="menu-icon">⬆️</span><span class="menu-title">Max Level</span><span class="menu-badge">✦</span></button>
+            <button class="menu-item" data-action="maxRuby"><span class="menu-icon">💎</span><span class="menu-title">Max Ruby</span><span class="menu-badge">✦</span></button>
+            <button class="menu-item" data-action="maxMoney"><span class="menu-icon">💰</span><span class="menu-title">Max Money</span><span class="menu-badge">✦</span></button>
+            <button class="menu-item" data-action="unlimitedEnergy"><span class="menu-icon">⚡</span><span class="menu-title">Unlimited Energy</span><span class="menu-badge">✦</span></button>
+            <button class="menu-item" data-action="unlockForge"><span class="menu-icon">🟢</span><span class="menu-title">Unlock Forges</span><span class="menu-badge">✦</span></button>
+            <button class="menu-item" data-action="unlockGear"><span class="menu-icon">🛡️</span><span class="menu-title">Unlock Gear</span><span class="menu-badge">✦</span></button>
+            <button class="menu-item" data-action="completeStory"><span class="menu-icon">📖</span><span class="menu-title">Complete Story</span><span class="menu-badge">✦</span></button>
+            <button class="menu-item" data-action="maxPerk"><span class="menu-icon">⭐</span><span class="menu-title">Max Perk</span><span class="menu-badge">✦</span></button>
+        </div>
+
+        <div id="fileInfo" style="display:none;" class="file-info-card">
+            <div class="file-info-icon">📄</div>
+            <div class="file-info-content">
+                <span class="file-name" id="fileNameDisplay">file.xml</span>
+                <span class="file-details" id="fileDetails">0 bytes · 0 lines</span>
+            </div>
+            <div class="file-status-badge">✓ Loaded</div>
+        </div>
+
+        <div id="resultArea"></div>
+
+        <div id="editorSection" style="display:none;" class="editor-section">
+            <div class="editor-header">
+                <div class="editor-title-group">
+                    <h2>📝 Source Editor</h2>
+                    <span class="editor-tag">editable</span>
+                </div>
+            </div>
+            <div class="editor-wrapper">
+                <div class="editor-container">
+                    <div class="editor-gutter" id="gutter"></div>
+                    <textarea class="editor-textarea" id="editorTextarea" spellcheck="false"></textarea>
+                </div>
+                <div class="editor-footer">
+                    <span class="editor-stats" id="lineStats">Lines: 0</span>
+                    <span class="editor-stats" id="charStats">Characters: 0</span>
+                    <span class="editor-status-dirty" id="dirtyIndicator" style="display:none;">● Modified</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            'use strict';
+
+            let fileName = '';
+            let fileSizeBytes = 0;
+            let lineCount = 0;
+            let content = '';
+            let originalContent = '';
+            let isValid = null;
+            let errors = [];
+            let errorLineNumbers = new Set();
+            let isDirty = false;
+
+            const fileInput = document.getElementById('fileInput');
+            const uploadBtn = document.getElementById('uploadBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileNameDisplay = document.getElementById('fileNameDisplay');
+            const fileDetails = document.getElementById('fileDetails');
+            const resultArea = document.getElementById('resultArea');
+            const editorSection = document.getElementById('editorSection');
+            const editorTextarea = document.getElementById('editorTextarea');
+            const gutter = document.getElementById('gutter');
+            const lineStats = document.getElementById('lineStats');
+            const charStats = document.getElementById('charStats');
+            const dirtyIndicator = document.getElementById('dirtyIndicator');
+            const actions = document.querySelectorAll('.menu-item');
+
+            const allBattles = [
+                { Name: "ZONE_1|Tournament|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_2|Tournament|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_2|Challenge|", Locked: "1", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_RAID3|BOSS_11|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_RAID3|BOSS_12|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_RAID3|BOSS_13|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_RAID3|BOSS_14|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_3|Tournament|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_3|Challenge|", Locked: "1", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_4|Tournament|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_4|Challenge|", Locked: "1", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_5|Tournament|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_5|Challenge|", Locked: "1", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_6|Tournament|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_6|Challenge|", Locked: "1", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_6|FINAL_BATTLE|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_1|BOSS_LYNX_INTERMISSION|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_1|Duel_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_1|Survival_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_6|FINAL_BATTLE_ECLIPSEMODE|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_2|BOSS_HERMIT_INTERMISSION|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_2|Duel_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_2|Survival_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_3|BOSS_BUTCHER_INTERMISSION|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_3|Duel_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_3|Survival_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_4|BOSS_WASP_INTERMISSION|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_4|Duel_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_4|Survival_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_5|BOSS_HUNTRESS_INTERMISSION|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_5|Duel_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_5|Survival_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_6|BOSS_SAMURAI_INTERMISSION|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_6|Duel_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_6|Survival_INTERMISSION|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_1|BOSS_LYNX_ECLIPSEMODE|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_2|BOSS_HERMIT_ECLIPSEMODE|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_3|BOSS_BUTCHER_ECLIPSEMODE|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_4|BOSS_WASP_ECLIPSEMODE|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_5|BOSS_HUNTRESS_ECLIPSEMODE|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_6|BOSS_SAMURAI_ECLIPSEMODE|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_7|Challenge1_1|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_7|C3_Survival|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_7|C3_Duel|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_7|C3_BOSS_TITAN|", Locked: "0", Hidden: "1", ReplayCount: "0" },
+                { Name: "ZONE_7|C3_Challenge|", Locked: "0", Hidden: "0", ReplayCount: "0" },
+                { Name: "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|", Locked: "0", Hidden: "0", ReplayCount: "1" }
+            ];
+
+            const allFights = [
+                { IDS: "ZONE_1|Duel|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_1|Duel_INTERMISSION|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_2|Duel|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_2|Duel_INTERMISSION|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_3|Duel|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_3|Duel_INTERMISSION|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_4|Duel|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_4|Duel_INTERMISSION|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_5|Duel|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_5|Duel_INTERMISSION|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_6|Duel|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_6|Duel_INTERMISSION|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_7|Duel|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "ZONE_7|C3_Duel|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781744343", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "Punchbag|Training|1", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "0", RandomizeTimeLeft: "0", Level: "0" },
+                { IDS: "Punchbag|Bosses|1", CompletedCount: "1", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "1781097810", RandomizeTimeLeft: "0", Level: "1" },
+                { IDS: "Punchbag|Training|2", CompletedCount: "0", LossCount: "0", EclipseCompletedCount: "0", EclipseLossCount: "0", StoryCount: "0", CompletedTime: "0", TimeLeft: "0", RandomizeTimeLeft: "0", Level: "0" }
+            ];
+
+            const bossFights = [
+                "ZONE_1|BOSS_LYNX|1", "ZONE_1|BOSS_LYNX|2", "ZONE_1|BOSS_LYNX|3", "ZONE_1|BOSS_LYNX|4", "ZONE_1|BOSS_LYNX|5", "ZONE_1|BOSS_LYNX|6",
+                "ZONE_2|BOSS_HERMIT|1", "ZONE_2|BOSS_HERMIT|2", "ZONE_2|BOSS_HERMIT|3", "ZONE_2|BOSS_HERMIT|4", "ZONE_2|BOSS_HERMIT|5", "ZONE_2|BOSS_HERMIT|6",
+                "ZONE_3|BOSS_BUTCHER|1", "ZONE_3|BOSS_BUTCHER|2", "ZONE_3|BOSS_BUTCHER|3", "ZONE_3|BOSS_BUTCHER|4", "ZONE_3|BOSS_BUTCHER|5", "ZONE_3|BOSS_BUTCHER|6",
+                "ZONE_4|BOSS_WASP|1", "ZONE_4|BOSS_WASP|2", "ZONE_4|BOSS_WASP|3", "ZONE_4|BOSS_WASP|4", "ZONE_4|BOSS_WASP|5", "ZONE_4|BOSS_WASP|6",
+                "ZONE_5|BOSS_HUNTRESS|1", "ZONE_5|BOSS_HUNTRESS|2", "ZONE_5|BOSS_HUNTRESS|3", "ZONE_5|BOSS_HUNTRESS|4", "ZONE_5|BOSS_HUNTRESS|5", "ZONE_5|BOSS_HUNTRESS|6",
+                "ZONE_6|BOSS_SAMURAI|1", "ZONE_6|BOSS_SAMURAI|2", "ZONE_6|BOSS_SAMURAI|3", "ZONE_6|BOSS_SAMURAI|4", "ZONE_6|BOSS_SAMURAI|5", "ZONE_6|BOSS_SAMURAI|6",
+                "ZONE_6|QuestBattle|1", "ZONE_6|FINAL_BATTLE|1",
+                "ZONE_1|BOSS_LYNX_INTERMISSION|1", "ZONE_2|BOSS_HERMIT_INTERMISSION|1", "ZONE_3|BOSS_BUTCHER_INTERMISSION|1",
+                "ZONE_4|BOSS_WASP_INTERMISSION|1", "ZONE_5|BOSS_HUNTRESS_INTERMISSION|1", "ZONE_6|BOSS_SAMURAI_INTERMISSION|1",
+                "ZONE_7|MINIBOSS_SHROUD|1", "ZONE_7|MINIBOSS_CYPHER|1", "ZONE_7|MINIBOSS_HYPERION|1", "ZONE_7|MINIBOSS_ANCIENT|1",
+                "ZONE_7|MINIBOSS_SHROUD2|1",
+                "ZONE_7|C3_BOSS_TITAN|1", "ZONE_7|C3_BOSS_TITAN|2", "ZONE_7|C3_BOSS_TITAN|3", "ZONE_7|C3_BOSS_TITAN|4", "ZONE_7|C3_BOSS_TITAN|5", "ZONE_7|C3_BOSS_TITAN|6",
+                "ZONE_7|C3_FightWithMay|1",
+                "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|1", "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|2", "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|3",
+                "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|4", "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|5", "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|6",
+                "ZONE_7|C3_FightWithMay_ECLIPSEMODE|1"
+            ];
+
+            const bossTimeLefts = {
+                "ZONE_1|BOSS_LYNX|1": "1781097892", "ZONE_1|BOSS_LYNX|2": "1781165776", "ZONE_1|BOSS_LYNX|3": "1781165832",
+                "ZONE_1|BOSS_LYNX|4": "1781165916", "ZONE_1|BOSS_LYNX|5": "1781165997", "ZONE_1|BOSS_LYNX|6": "1781166076",
+                "ZONE_2|BOSS_HERMIT|1": "1781166234", "ZONE_2|BOSS_HERMIT|2": "1781446771", "ZONE_2|BOSS_HERMIT|3": "1781483753",
+                "ZONE_2|BOSS_HERMIT|4": "1781605428", "ZONE_2|BOSS_HERMIT|5": "1781605498", "ZONE_2|BOSS_HERMIT|6": "1781605602",
+                "ZONE_3|BOSS_BUTCHER|1": "1781611058", "ZONE_3|BOSS_BUTCHER|2": "1781615182", "ZONE_3|BOSS_BUTCHER|3": "1781615343",
+                "ZONE_3|BOSS_BUTCHER|4": "1781615483", "ZONE_3|BOSS_BUTCHER|5": "1781615565", "ZONE_3|BOSS_BUTCHER|6": "1781615701",
+                "ZONE_4|BOSS_WASP|1": "1781616358", "ZONE_4|BOSS_WASP|2": "1781683593", "ZONE_4|BOSS_WASP|3": "1781683735",
+                "ZONE_4|BOSS_WASP|4": "1781683848", "ZONE_4|BOSS_WASP|5": "1781683933", "ZONE_4|BOSS_WASP|6": "1781684040",
+                "ZONE_5|BOSS_HUNTRESS|1": "1781684273", "ZONE_5|BOSS_HUNTRESS|2": "1781684379", "ZONE_5|BOSS_HUNTRESS|3": "1781684492",
+                "ZONE_5|BOSS_HUNTRESS|4": "1781684585", "ZONE_5|BOSS_HUNTRESS|5": "1781684664", "ZONE_5|BOSS_HUNTRESS|6": "1781684735",
+                "ZONE_6|BOSS_SAMURAI|1": "1781684848", "ZONE_6|BOSS_SAMURAI|2": "1781685400", "ZONE_6|BOSS_SAMURAI|3": "1781685470",
+                "ZONE_6|BOSS_SAMURAI|4": "1781685582", "ZONE_6|BOSS_SAMURAI|5": "1781685924", "ZONE_6|BOSS_SAMURAI|6": "1781686038",
+                "ZONE_6|QuestBattle|1": "1781685723", "ZONE_6|FINAL_BATTLE|1": "1781686355",
+                "ZONE_1|BOSS_LYNX_INTERMISSION|1": "1781689546", "ZONE_2|BOSS_HERMIT_INTERMISSION|1": "1781689843",
+                "ZONE_3|BOSS_BUTCHER_INTERMISSION|1": "1781690066", "ZONE_4|BOSS_WASP_INTERMISSION|1": "1781690342",
+                "ZONE_5|BOSS_HUNTRESS_INTERMISSION|1": "1781690561", "ZONE_6|BOSS_SAMURAI_INTERMISSION|1": "1781690823",
+                "ZONE_7|MINIBOSS_SHROUD|1": "1781691036", "ZONE_7|MINIBOSS_CYPHER|1": "1781692913",
+                "ZONE_7|MINIBOSS_HYPERION|1": "1781693850", "ZONE_7|MINIBOSS_ANCIENT|1": "1781695727",
+                "ZONE_7|MINIBOSS_SHROUD2|1": "1781696450",
+                "ZONE_7|C3_BOSS_TITAN|1": "1781710025", "ZONE_7|C3_BOSS_TITAN|2": "1781710102", "ZONE_7|C3_BOSS_TITAN|3": "1781710188",
+                "ZONE_7|C3_BOSS_TITAN|4": "1781710289", "ZONE_7|C3_BOSS_TITAN|5": "1781710383", "ZONE_7|C3_BOSS_TITAN|6": "1781710586",
+                "ZONE_7|C3_FightWithMay|1": "1781710478",
+                "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|1": "1781754993", "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|2": "1781754993",
+                "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|3": "1781754993", "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|4": "1781754993",
+                "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|5": "1781754993", "ZONE_7|C3_BOSS_TITAN_ECLIPSEMODE|6": "1781757188",
+                "ZONE_7|C3_FightWithMay_ECLIPSEMODE|1": "1781756990"
+            };
+
+            const perkHistoryLevels = [
+                { level: 2, perk: "PERK_DOUBLE_SWEEP" },
+                { level: 3, perk: "PERK_COBRA" },
+                { level: 4, perk: "PERK_DOUBLE_JUMP_KICK" },
+                { level: 5, perk: "PERK_ROCK" },
+                { level: 6, perk: "PERK_ROCK" },
+                { level: 7, perk: "PERK_FURIOUS" },
+                { level: 8, perk: "PERK_ELBOW_STRIKE" },
+                { level: 9, perk: "PERK_COBRA" },
+                { level: 10, perk: "PERK_ROCK" },
+                { level: 11, perk: "PERK_TWO_FOOT_JUMP_KICK" },
+                { level: 12, perk: "PERK_ROCK" },
+                { level: 13, perk: "PERK_CONCUSSION" },
+                { level: 14, perk: "PERK_BACK_FLIP_KICK" },
+                { level: 15, perk: "PERK_CONCUSSION" },
+                { level: 16, perk: "PERK_ROCK" },
+                { level: 17, perk: "PERK_SUPLEX" },
+                { level: 18, perk: "PERK_CONCUSSION" },
+                { level: 19, perk: "PERK_COBRA" },
+                { level: 20, perk: "PERK_FULL_POWER" },
+                { level: 21, perk: "PERK_COBRA" },
+                { level: 22, perk: "PERK_CONCUSSION" },
+                { level: 23, perk: "PERK_ROCK" },
+                { level: 24, perk: "PERK_CONCUSSION" },
+                { level: 25, perk: "PERK_FULL_POWER" },
+                { level: 26, perk: "PERK_BLOCK_BREAKER" },
+                { level: 27, perk: "PERK_BLOCK_BREAKER" },
+                { level: 28, perk: "PERK_CONCUSSION" },
+                { level: 29, perk: "PERK_BLOCK_BREAKER" },
+                { level: 30, perk: "PERK_CONCUSSION" },
+                { level: 31, perk: "PERK_BLOCK_BREAKER" },
+                { level: 32, perk: "PERK_MARTIAL_SPIRIT" },
+                { level: 33, perk: "PERK_MARTIAL_SPIRIT" },
+                { level: 34, perk: "PERK_BLOCK_BREAKER" },
+                { level: 35, perk: "PERK_MARTIAL_SPIRIT" },
+                { level: 36, perk: "PERK_BLOCK_BREAKER" },
+                { level: 37, perk: "PERK_MARTIAL_SPIRIT" },
+                { level: 38, perk: "PERK_ENLIGHTENMENT" },
+                { level: 39, perk: "PERK_ENLIGHTENMENT" },
+                { level: 40, perk: "PERK_BLOCK_BREAKER" },
+                { level: 41, perk: "PERK_BLOCK_BREAKER" },
+                { level: 42, perk: "PERK_MARTIAL_SPIRIT" },
+                { level: 43, perk: "PERK_ENLIGHTENMENT" },
+                { level: 44, perk: "PERK_BLOCK_BREAKER" },
+                { level: 45, perk: "PERK_RICOCHET" },
+                { level: 46, perk: "PERK_ENLIGHTENMENT" },
+                { level: 47, perk: "PERK_RICOCHET" },
+                { level: 48, perk: "PERK_ENLIGHTENMENT" },
+                { level: 49, perk: "PERK_RICOCHET" },
+                { level: 50, perk: "PERK_ENLIGHTENMENT" },
+                { level: 51, perk: "PERK_RICOCHET" },
+                { level: 52, perk: "PERK_ENLIGHTENMENT" }
+            ];
+
+            const perks = [
+                { level: 2, name: "PERK_DOUBLE_SWEEP", upgradeLevel: null },
+                { level: 3, name: "PERK_COBRA", upgradeLevel: 4 },
+                { level: 4, name: "PERK_DOUBLE_JUMP_KICK", upgradeLevel: null },
+                { level: 5, name: "PERK_ROCK", upgradeLevel: 6 },
+                { level: 7, name: "PERK_FURIOUS", upgradeLevel: 1 },
+                { level: 8, name: "PERK_ELBOW_STRIKE", upgradeLevel: null },
+                { level: 11, name: "PERK_TWO_FOOT_JUMP_KICK", upgradeLevel: null },
+                { level: 13, name: "PERK_CONCUSSION", upgradeLevel: 7 },
+                { level: 14, name: "PERK_BACK_FLIP_KICK", upgradeLevel: null },
+                { level: 17, name: "PERK_SUPLEX", upgradeLevel: null },
+                { level: 20, name: "PERK_FULL_POWER", upgradeLevel: 2 },
+                { level: 26, name: "PERK_BLOCK_BREAKER", upgradeLevel: 9 },
+                { level: 32, name: "PERK_MARTIAL_SPIRIT", upgradeLevel: 5 },
+                { level: 38, name: "PERK_ENLIGHTENMENT", upgradeLevel: 7 },
+                { level: 45, name: "PERK_RICOCHET", upgradeLevel: 4 }
+            ];
+
+            function splitLines(text) {
+                const norm = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                return norm.split('\n');
+            }
+
+            function updateStats() {
+                const lines = splitLines(content);
+                lineCount = lines.length;
+                lineStats.textContent = `Lines: ${lineCount}`;
+                charStats.textContent = `Characters: ${content.length}`;
+                fileDetails.textContent = `${fileSizeBytes} bytes · ${lineCount} lines`;
+                if (fileName) {
+                    fileNameDisplay.textContent = fileName;
+                    fileInfo.style.display = 'flex';
+                }
+                dirtyIndicator.style.display = isDirty ? 'inline' : 'none';
+                downloadBtn.disabled = !fileName || !isValid;
+                resetBtn.disabled = !fileName || !isValid;
+                renderGutter(lines);
+                actions.forEach(btn => {
+                    btn.disabled = !fileName || !isValid;
+                });
+            }
+
+            function renderGutter(lines) {
+                let html = '';
+                for (let i = 0; i < lines.length; i++) {
+                    const lineNum = i + 1;
+                    const hasErr = errorLineNumbers.has(lineNum);
+                    html += `<div class="gutter-line ${hasErr ? 'gutter-error' : ''}">
+                        <span class="line-number">${lineNum}</span>
+                        <span class="line-marker"></span>
+                    </div>`;
+                }
+                gutter.innerHTML = html;
+                gutter.scrollTop = editorTextarea.scrollTop;
+            }
+
+            function validateXml(text) {
+                errors = [];
+                errorLineNumbers.clear();
+                try {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(text, 'text/xml');
+                    const parseError = doc.querySelector('parsererror');
+                    if (parseError) {
+                        const msg = parseError.textContent || 'Invalid XML';
+                        errors.push({ line: 0, column: 0, message: msg });
+                        errorLineNumbers.add(1);
+                        isValid = false;
+                    } else {
+                        isValid = true;
+                    }
+                } catch (e) {
+                    errors.push({ line: 0, column: 0, message: e.message });
+                    errorLineNumbers.add(1);
+                    isValid = false;
+                }
+                return isValid;
+            }
+
+            function showResult(type, title, message, errorsList) {
+                let html = '';
+                if (type === 'success') {
+                    html = `<div class="result-card success">
+                        <div class="result-icon">✅</div>
+                        <div class="result-content">
+                            <span class="result-title">${title}</span>
+                            <span class="result-message">${message}</span>
+                        </div>
+                        <button class="close" onclick="this.parentElement.remove()">✕</button>
+                    </div>`;
+                } else if (type === 'error') {
+                    html = `<div class="result-card error">
+                        <div class="result-icon">⚠️</div>
+                        <div class="result-content">
+                            <span class="result-title">${title}</span>
+                            <span class="result-message">${message}</span>
+                        </div>
+                        <button class="close" onclick="this.parentElement.remove()">✕</button>
+                    </div>`;
+                    if (errorsList && errorsList.length) {
+                        html += `<div class="error-table-container">
+                            <div class="table-header"><h3>❌ Error Details</h3><span class="error-count">${errorsList.length} errors</span></div>
+                            <table class="error-table"><thead><tr><th>Line</th><th>Col</th><th>Message</th><th>Status</th></tr></thead><tbody>`;
+                        errorsList.forEach(e => {
+                            html += `<tr><td><span class="badge-line">${e.line || 0}</span></td><td><span class="badge-col">${e.column || 0}</span></td><td>${e.message}</td><td><span class="status-badge">⚠ Error</span></td></tr>`;
+                        });
+                        html += `</tbody></table></div>`;
+                    }
+                } else if (type === 'action') {
+                    html = `<div class="result-card success">
+                        <div class="result-icon">✅</div>
+                        <div class="result-content">
+                            <span class="result-title">${title}</span>
+                            <span class="result-message">${message}</span>
+                        </div>
+                        <button class="close" onclick="this.parentElement.remove()">✕</button>
+                    </div>`;
+                }
+                resultArea.innerHTML = html;
+            }
+
+            function clearResults() {
+                resultArea.innerHTML = '';
+            }
+
+            function applyEdits(newContent, successTitle, successMessage) {
+                content = newContent;
+                originalContent = content;
+                isDirty = false;
+                fileSizeBytes = new Blob([content]).size;
+                validateXml(content);
+                updateStats();
+                editorTextarea.value = content;
+                if (isValid) {
+                    showResult('action', successTitle, successMessage);
+                } else {
+                    showResult('error', 'Validation Error', 'The edited XML is invalid.', errors);
+                }
+                syncGutterScroll();
+            }
+
+            function createElement(doc, tag, attrs) {
+                const el = doc.createElement(tag);
+                for (const [key, value] of Object.entries(attrs)) {
+                    el.setAttribute(key, value);
+                }
+                return el;
+            }
+
+            function addEnchantments(doc, itemElement, itemName) {
+                const existingEnch = itemElement.querySelector('Enchantments');
+                if (existingEnch) {
+                    itemElement.removeChild(existingEnch);
+                }
+
+                const enchNode = doc.createElement('Enchantments');
+
+                switch (itemName) {
+                    case 'HELM_CONICAL_HAT':
+                        addPerk(doc, enchNode, 'PERK_ITEM_SPECIAL_DAMAGE_ABSORPTION_HEAD_HELM', '2000');
+                        addPerk(doc, enchNode, 'PERK_TIME_SHIFT_SET_TIME_SHIFTER');
+                        break;
+                    case 'RANGED_CIRCULAR_SAW':
+                        addPerk(doc, enchNode, 'PERK_ITEM_SPECIAL_FRENZY_RANGED', '2000');
+                        addPerk(doc, enchNode, 'PERK_TIME_SHIFT_SET_TIME_SHIFTER');
+                        break;
+                    case 'WEAPON_POWER_FISTS':
+                        addPerk(doc, enchNode, 'PERK_ITEM_SPECIAL_FRENZY_WEAPON', '2000');
+                        addPerk(doc, enchNode, 'PERK_TIME_SHIFT_SET_TIME_SHIFTER');
+                        break;
+                    case 'ARMOR_XENOMORPH':
+                        addPerk(doc, enchNode, 'PERK_ITEM_SPECIAL_DAMAGE_ABSORPTION_BODY_ARMOR', '2000');
+                        addPerk(doc, enchNode, 'PERK_TIME_SHIFT_SET_TIME_SHIFTER');
+                        break;
+                    case 'MAGIC_SAWMILL':
+                        addPerkWithChance(doc, enchNode, 'PERK_ITEM_SPECIAL_FRENZY_MAGIC', '2000', '1');
+                        addPerk(doc, enchNode, 'PERK_TIME_SHIFT_SET_TIME_SHIFTER');
+                        break;
+                    default:
+                        if (itemName.includes('TIME_SHIFTER')) {
+                            addPerk(doc, enchNode, 'PERK_TIME_SHIFT_SET_TIME_SHIFTER');
+                        }
+                        break;
+                }
+
+                itemElement.appendChild(enchNode);
+            }
+
+            function addPerk(doc, parent, perkName, aspect) {
+                const perk = doc.createElement('Perk');
+                perk.setAttribute('Name', perkName);
+                if (aspect) {
+                    const setEl = doc.createElement('Set');
+                    setEl.setAttribute('Aspect', aspect);
+                    perk.appendChild(setEl);
+                }
+                parent.appendChild(perk);
+            }
+
+            function addPerkWithChance(doc, parent, perkName, aspect, chance) {
+                const perk = doc.createElement('Perk');
+                perk.setAttribute('Name', perkName);
+                const setEl = doc.createElement('Set');
+                setEl.setAttribute('Aspect', aspect);
+                setEl.setAttribute('Chance', chance);
+                perk.appendChild(setEl);
+                parent.appendChild(perk);
+            }
+
+            function performAction(action) {
+                if (!content || !isValid) return;
+                try {
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(content, 'text/xml');
+                    const parseError = xmlDoc.querySelector('parsererror');
+                    if (parseError) throw new Error('Invalid XML');
+
+                    let modified = false;
+                    let title = '', msg = '';
+
+                    switch (action) {
+                        case 'maxLevel': {
+                            const warrior = xmlDoc.querySelector('Warrior[ID="1"]');
+                            if (warrior) {
+                                warrior.setAttribute('Level', '52');
+                                warrior.setAttribute('Experience', '88000000');
+                                modified = true;
+                                title = '⬆️ Max Level Unlocked!';
+                                msg = 'Level set to max!';
+                            }
+                            break;
+                        }
+                        case 'maxRuby': {
+                            const warrior = xmlDoc.querySelector('Warrior[ID="1"]');
+                            if (warrior) {
+                                warrior.setAttribute('Bonus', '99999999');
+                                modified = true;
+                                title = '💎 Max Ruby Unlocked!';
+                                msg = 'Ruby has been added!';
+                            }
+                            break;
+                        }
+                        case 'maxMoney': {
+                            const warrior = xmlDoc.querySelector('Warrior[ID="1"]');
+                            if (warrior) {
+                                warrior.setAttribute('Money', '9999999999999');
+                                modified = true;
+                                title = '💰 Max Money Unlocked!';
+                                msg = 'Money has been added!';
+                            }
+                            break;
+                        }
+                        case 'unlimitedEnergy': {
+                            let items = xmlDoc.querySelector('Items');
+                            if (!items) {
+                                items = xmlDoc.createElement('Items');
+                                xmlDoc.documentElement.appendChild(items);
+                            }
+                            let item = items.querySelector('Item[Name="Unlimited_Energy"]');
+                            if (!item) {
+                                item = createElement(xmlDoc, 'Item', {
+                                    'Name': 'Unlimited_Energy',
+                                    'Equipped': '1',
+                                    'Count': '1',
+                                    'UpgradeLevel': '0',
+                                    'DeliveryTime': '0',
+                                    'DeliveryUpgradeLevel': '-1',
+                                    'AcquireType': 'Item'
+                                });
+                                items.appendChild(item);
+                            } else {
+                                item.setAttribute('Equipped', '1');
+                                item.setAttribute('Count', '1');
+                            }
+                            modified = true;
+                            title = '⚡ Unlimited Energy Unlocked!';
+                            msg = 'Unlimited Energy has been successfully added!';
+                            break;
+                        }
+                        case 'unlockForge': {
+                            const currencies = xmlDoc.querySelector('Currencies');
+                            if (currencies) {
+                                currencies.setAttribute('ForgeMaterial1', '99999999');
+                                currencies.setAttribute('ForgeMaterial2', '99999999');
+                                currencies.setAttribute('ForgeMaterial3', '99999999');
+                                modified = true;
+                                title = '🟢 Forge Materials Unlocked!';
+                                msg = 'All forge materials have been added!';
+                            }
+                            break;
+                        }
+                        case 'unlockGear': {
+                            let items = xmlDoc.querySelector('Items');
+                            if (!items) {
+                                items = xmlDoc.createElement('Items');
+                                xmlDoc.documentElement.appendChild(items);
+                            }
+                            const gearList = [
+                                { name: 'WEAPON_BP_S5_TIME_SHIFTER', equipped: false, upgradeLevel: 5240 },
+                                { name: 'HELM_BP_S5_TIME_SHIFTER', equipped: false, upgradeLevel: 5240 },
+                                { name: 'ARMOR_BP_S5_TIME_SHIFTER', equipped: false, upgradeLevel: 5240 },
+                                { name: 'RANGED_BP_S5_TIME_SHIFTER', equipped: false, upgradeLevel: 5240 },
+                                { name: 'MAGIC_BP_S5_TIME_SHIFTER', equipped: false, upgradeLevel: 5240 },
+                                { name: 'HELM_CONICAL_HAT', equipped: true, upgradeLevel: 5240 },
+                                { name: 'RANGED_CIRCULAR_SAW', equipped: true, upgradeLevel: 5240 },
+                                { name: 'WEAPON_POWER_FISTS', equipped: true, upgradeLevel: 5240 },
+                                { name: 'ARMOR_XENOMORPH', equipped: true, upgradeLevel: 5240 },
+                                { name: 'MAGIC_SAWMILL', equipped: true, upgradeLevel: 5240 }
+                            ];
+                            gearList.forEach(gear => {
+                                let el = items.querySelector(`Item[Name="${gear.name}"]`);
+                                if (!el) {
+                                    el = createElement(xmlDoc, 'Item', {
+                                        'Name': gear.name,
+                                        'Equipped': gear.equipped ? '1' : '0',
+                                        'Count': '1',
+                                        'UpgradeLevel': gear.upgradeLevel.toString(),
+                                        'DeliveryTime': '-1',
+                                        'DeliveryUpgradeLevel': '-1',
+                                        'AcquireType': 'Upgrade'
+                                    });
+                                    addEnchantments(xmlDoc, el, gear.name);
+                                    items.appendChild(el);
+                                } else {
+                                    el.setAttribute('Equipped', gear.equipped ? '1' : '0');
+                                    el.setAttribute('UpgradeLevel', gear.upgradeLevel.toString());
+                                    el.setAttribute('Count', '1');
+                                    addEnchantments(xmlDoc, el, gear.name);
+                                }
+                            });
+                            modified = true;
+                            title = '🛡️ Gear Unlocked!';
+                            msg = 'All gear items with enchantments have been successfully unlocked!';
+                            break;
+                        }
+                        case 'completeStory': {
+                            let battlesNode = xmlDoc.querySelector('Battles');
+                            if (!battlesNode) {
+                                battlesNode = xmlDoc.createElement('Battles');
+                                xmlDoc.documentElement.appendChild(battlesNode);
+                            }
+                            allBattles.forEach(battle => {
+                                const existing = battlesNode.querySelector(`Battle[Name="${battle.Name}"]`);
+                                if (!existing) {
+                                    const el = createElement(xmlDoc, 'Battle', {
+                                        'Name': battle.Name,
+                                        'Locked': battle.Locked,
+                                        'Hidden': battle.Hidden,
+                                        'ReplayCount': battle.ReplayCount
+                                    });
+                                    battlesNode.appendChild(el);
+                                } else {
+                                    existing.setAttribute('Locked', battle.Locked);
+                                    existing.setAttribute('Hidden', battle.Hidden);
+                                    existing.setAttribute('ReplayCount', battle.ReplayCount);
+                                }
+                            });
+
+                            let fightsNode = xmlDoc.querySelector('Fights');
+                            if (!fightsNode) {
+                                fightsNode = xmlDoc.createElement('Fights');
+                                xmlDoc.documentElement.appendChild(fightsNode);
+                            }
+                            allFights.forEach(fight => {
+                                const existing = fightsNode.querySelector(`Fight[IDS="${fight.IDS}"]`);
+                                if (!existing) {
+                                    const el = createElement(xmlDoc, 'Fight', {
+                                        'ID': '-1',
+                                        'IDS': fight.IDS,
+                                        'CompletedCount': fight.CompletedCount,
+                                        'LossCount': fight.LossCount,
+                                        'EclipseCompletedCount': fight.EclipseCompletedCount,
+                                        'EclipseLossCount': fight.EclipseLossCount,
+                                        'StoryCount': fight.StoryCount,
+                                        'CompletedTime': fight.CompletedTime,
+                                        'TimeLeft': fight.TimeLeft,
+                                        'RandomizeTimeLeft': fight.RandomizeTimeLeft,
+                                        'Level': fight.Level
+                                    });
+                                    fightsNode.appendChild(el);
+                                }
+                            });
+                            bossFights.forEach(ids => {
+                                const existing = fightsNode.querySelector(`Fight[IDS="${ids}"]`);
+                                if (!existing) {
+                                    const timeLeft = bossTimeLefts[ids] || '0';
+                                    const el = createElement(xmlDoc, 'Fight', {
+                                        'ID': '-1',
+                                        'IDS': ids,
+                                        'CompletedCount': '1',
+                                        'LossCount': '0',
+                                        'EclipseCompletedCount': '0',
+                                        'EclipseLossCount': '0',
+                                        'StoryCount': '0',
+                                        'CompletedTime': '0',
+                                        'TimeLeft': timeLeft,
+                                        'RandomizeTimeLeft': '0',
+                                        'Level': '52'
+                                    });
+                                    fightsNode.appendChild(el);
+                                }
+                            });
+
+                            modified = true;
+                            title = '📖 Story Completed!';
+                            msg = 'All battles and fights have been successfully unlocked!';
+                            break;
+                        }
+                        case 'maxPerk': {
+                            let perkHistoryNode = xmlDoc.querySelector('PerkHistory');
+                            if (!perkHistoryNode) {
+                                perkHistoryNode = xmlDoc.createElement('PerkHistory');
+                                xmlDoc.documentElement.appendChild(perkHistoryNode);
+                            }
+                            perkHistoryLevels.forEach(ph => {
+                                const existing = perkHistoryNode.querySelector(`Level[Value="${ph.level}"]`);
+                                if (!existing) {
+                                    const el = createElement(xmlDoc, 'Level', {
+                                        'Value': ph.level.toString(),
+                                        'Perk': ph.perk
+                                    });
+                                    perkHistoryNode.appendChild(el);
+                                } else {
+                                    existing.setAttribute('Perk', ph.perk);
+                                }
+                            });
+
+                            let perksNode = xmlDoc.querySelector('Perks');
+                            if (!perksNode) {
+                                perksNode = xmlDoc.createElement('Perks');
+                                xmlDoc.documentElement.appendChild(perksNode);
+                            }
+                            perks.forEach(perk => {
+                                const existing = perksNode.querySelector(`Perk[Name="${perk.name}"]`);
+                                if (!existing) {
+                                    const attrs = {
+                                        'Level': perk.level.toString(),
+                                        'Name': perk.name
+                                    };
+                                    if (perk.upgradeLevel !== null) {
+                                        attrs['UpgradeLevel'] = perk.upgradeLevel.toString();
+                                    }
+                                    const el = createElement(xmlDoc, 'Perk', attrs);
+                                    perksNode.appendChild(el);
+                                } else {
+                                    existing.setAttribute('Level', perk.level.toString());
+                                    if (perk.upgradeLevel !== null) {
+                                        existing.setAttribute('UpgradeLevel', perk.upgradeLevel.toString());
+                                    }
+                                }
+                            });
+
+                            modified = true;
+                            title = '⭐ Max Perks Unlocked!';
+                            msg = 'All perks have been set successfully!';
+                            break;
+                        }
+                        default: return;
+                    }
+
+                    if (modified) {
+                        const serializer = new XMLSerializer();
+                        let newContent = serializer.serializeToString(xmlDoc);
+                        newContent = newContent.replace(/></g, '>\n<');
+                        applyEdits(newContent, title, msg);
+                    } else {
+                        showResult('error', 'Action Failed', 'Could not apply modification.');
+                    }
+                } catch (e) {
+                    showResult('error', 'Error', e.message);
+                }
+            }
+
+            function loadFile(file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    fileName = file.name;
+                    fileSizeBytes = file.size;
+                    content = e.target.result;
+                    originalContent = content;
+                    isDirty = false;
+                    validateXml(content);
+                    editorTextarea.value = content;
+                    editorSection.style.display = 'block';
+                    updateStats();
+                    clearResults();
+                    if (isValid) {
+                        showResult('success', 'Valid XML', 'No errors found. Your XML is valid!');
+                    } else {
+                        showResult('error', 'Validation Failed', `${errors.length} error(s) found in your XML`, errors);
+                    }
+                    syncGutterScroll();
+                    downloadBtn.disabled = false;
+                    resetBtn.disabled = false;
+                    actions.forEach(btn => btn.disabled = false);
+                };
+                reader.readAsText(file);
+            }
+
+            function syncGutterScroll() {
+                gutter.scrollTop = editorTextarea.scrollTop;
+            }
+
+            uploadBtn.addEventListener('click', function () {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', function (e) {
+                if (this.files && this.files.length > 0) {
+                    loadFile(this.files[0]);
+                    this.value = '';
+                }
+            });
+
+            downloadBtn.addEventListener('click', function () {
+                if (!content) return;
+                const blob = new Blob([content], { type: 'application/xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName || 'users.xml';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            resetBtn.addEventListener('click', function () {
+                if (originalContent) {
+                    content = originalContent;
+                    isDirty = false;
+                    validateXml(content);
+                    editorTextarea.value = content;
+                    updateStats();
+                    clearResults();
+                    if (isValid) {
+                        showResult('success', 'Valid XML', 'No errors found. Your XML is valid!');
+                    } else {
+                        showResult('error', 'Validation Failed', `${errors.length} error(s) found in your XML`, errors);
+                    }
+                    syncGutterScroll();
+                }
+            });
+
+            editorTextarea.addEventListener('input', function () {
+                content = this.value;
+                isDirty = (content !== originalContent);
+                fileSizeBytes = new Blob([content]).size;
+                validateXml(content);
+                updateStats();
+                clearResults();
+                if (isValid) {
+                    showResult('success', 'Valid XML', 'No errors found. Your XML is valid!');
+                } else {
+                    showResult('error', 'Validation Failed', `${errors.length} error(s) found in your XML`, errors);
+                }
+                syncGutterScroll();
+            });
+
+            editorTextarea.addEventListener('scroll', syncGutterScroll);
+
+            actions.forEach(btn => {
+                btn.addEventListener('click', function () {
+                    if (this.disabled) return;
+                    const action = this.dataset.action;
+                    if (action) performAction(action);
+                });
+            });
+
+            updateStats();
+            editorSection.style.display = 'none';
+            downloadBtn.disabled = true;
+            resetBtn.disabled = true;
+            actions.forEach(btn => btn.disabled = true);
+
+        })();
+    </script>
+</body>
+</html>
